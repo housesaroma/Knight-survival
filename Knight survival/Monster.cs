@@ -17,6 +17,7 @@ internal class Monster : Sprite
     private Texture2D idleSpritesheet;
     private Texture2D runSpritesheet;
     private List<Rectangle> frameRectangles;
+    private int spawnDistance = 10;
 
     public Monster(Texture2D idleSpritesheet, Texture2D runSpritesheet, List<Sprite> collisionGroup, Vector2 position, Vector2 playerPosition, int totalFrames, float frameTime) : base(idleSpritesheet, position, 6)
     {

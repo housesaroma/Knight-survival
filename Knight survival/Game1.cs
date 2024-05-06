@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
 using System.Collections.Generic;
 
 namespace Knight_survival
@@ -13,6 +14,10 @@ namespace Knight_survival
         Player player;
         List<Monster> monsters;
         Texture2D backgroundTexture;
+        Texture2D monsterTexture;
+        private double spawnTimer = 0;
+        private Random random = new Random();
+        int killedEnemies = 0;
 
         public Game1()
         {
@@ -44,7 +49,7 @@ namespace Knight_survival
             Texture2D idleSpritesheet = Content.Load<Texture2D>("_Idle");
             Texture2D runSpritesheet = Content.Load<Texture2D>("_Run");
             Texture2D attackSpritesheet = Content.Load<Texture2D>("_Attack2");
-            Texture2D monsterTexture = Content.Load<Texture2D>("skeleton");
+            monsterTexture = Content.Load<Texture2D>("skeleton");
             backgroundTexture = Content.Load<Texture2D>("background");
 
             player = new Player(idleSpritesheet, runSpritesheet, attackSpritesheet, new Vector2(500, 500), sprites, 10, 0.1f, 6);
@@ -63,10 +68,44 @@ namespace Knight_survival
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            foreach (var sprite in sprites)
+            spawnTimer += gameTime.ElapsedGameTime.TotalSeconds;
+
+            if (spawnTimer >= 2)
             {
-                sprite.Update(gameTime);
+                spawnTimer = 0;
+                Vector2 randomSpawnPoint = new Vector2(random.Next(0, _graphics.PreferredBackBufferWidth), random.Next(0, _graphics.PreferredBackBufferHeight));
+
+                foreach (var sprite in sprites)
+                {
+                    while (Math.Abs(randomSpawnPoint.X - sprite.position.X) < 200 || Math.Abs(randomSpawnPoint.Y - sprite.position.X) < 200)
+                        randomSpawnPoint = new Vector2(random.Next(0, _graphics.PreferredBackBufferWidth), random.Next(0, _graphics.PreferredBackBufferHeight));
+                }
+
+                monsters.Add(new Monster(monsterTexture, monsterTexture, sprites, randomSpawnPoint, player.position, 6, 0.1f));
+                sprites.Add(monsters[monsters.Count - 1]);
             }
+
+            if (Mouse.GetState().LeftButton == ButtonState.Pressed)
+            {
+                Rectangle playerHitbox = new Rectangle((int)player.position.X-10, (int)player.position.Y-10, player.Rect.Width + 10, player.Rect.Height + 5);
+
+                foreach (var monster in monsters)
+                {
+                    Rectangle monsterHitbox = new Rectangle((int)monster.position.X-10, (int)monster.position.Y-10, monster.Rect.Width + 10, monster.Rect.Height + 5);
+
+                    if (playerHitbox.Intersects(monsterHitbox))
+                    {
+                        sprites.Remove(monster);
+                        killedEnemies++;
+                    }
+                }
+            }
+
+            if (sprites.Count > 0)
+                foreach (var sprite in sprites)
+                {
+                    sprite.Update(gameTime);
+                }
 
             foreach (var monster in monsters)
             {
@@ -87,6 +126,8 @@ namespace Knight_survival
             _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
 
             _spriteBatch.Draw(backgroundTexture, Vector2.Zero, Color.White);
+
+            _spriteBatch.DrawString(Content.Load<SpriteFont>("Font"), "Killed Enemies: " + killedEnemies, new Vector2(_graphics.PreferredBackBufferWidth - 200, 10), Color.White);
 
             foreach (var sprite in sprites)
             {
