@@ -9,6 +9,7 @@ namespace Knight_survival
 
         public Texture2D texture;
         public Vector2 position;
+        public int frameRate;
 
         public Rectangle Rect
         {
@@ -17,16 +18,17 @@ namespace Knight_survival
                 return new Rectangle(
                     (int)position.X,
                     (int)position.Y,
-                    texture.Width * (int)SCALE,
-                    texture.Height * (int)SCALE
+                    texture.Width * (int)SCALE/frameRate-100,
+                    texture.Height * (int)SCALE-70
                     );
             }
         }
 
-        public Sprite(Texture2D texture, Vector2 position)
+        public Sprite(Texture2D texture, Vector2 position, int frameRate)
         {
             this.texture = texture;
             this.position = position;
+            this.frameRate = frameRate;
         }
 
         public virtual void Update(GameTime gameTime)

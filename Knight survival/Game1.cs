@@ -2,8 +2,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Diagnostics;
 
 namespace Knight_survival
 {
@@ -11,13 +9,20 @@ namespace Knight_survival
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
-
         List<Sprite> sprites;
         Player player;
+        List<Monster> monsters;
+        Texture2D backgroundTexture;
 
         public Game1()
         {
-            _graphics = new GraphicsDeviceManager(this);
+            _graphics = new GraphicsDeviceManager(this)
+            {
+                PreferredBackBufferWidth = 850,
+                PreferredBackBufferHeight = 850
+            };
+            //_graphics.IsFullScreen = true;
+            _graphics.ApplyChanges();
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
         }
@@ -25,6 +30,8 @@ namespace Knight_survival
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
+            sprites = new();
+            monsters = new();
 
             base.Initialize();
         }
@@ -32,18 +39,22 @@ namespace Knight_survival
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-            sprites = new();
 
             // TODO: use this.Content to load your game content here
-            Texture2D playerTexture = Content.Load<Texture2D>("player");
-            Texture2D monsterTexture = Content.Load<Texture2D>("monster");
+            Texture2D idleSpritesheet = Content.Load<Texture2D>("_Idle");
+            Texture2D runSpritesheet = Content.Load<Texture2D>("_Run");
+            Texture2D attackSpritesheet = Content.Load<Texture2D>("_Attack2");
+            Texture2D monsterTexture = Content.Load<Texture2D>("skeleton");
+            backgroundTexture = Content.Load<Texture2D>("background");
 
-            sprites.Add(new Sprite(monsterTexture, new Vector2(100, 100)));
-            sprites.Add(new Sprite(monsterTexture, new Vector2(400, 200)));
-            sprites.Add(new Sprite(monsterTexture, new Vector2(700, 300)));
+            player = new Player(idleSpritesheet, runSpritesheet, attackSpritesheet, new Vector2(500, 500), sprites, 10, 0.1f, 6);
+            monsters.Add(new Monster(monsterTexture, monsterTexture, sprites, new Vector2(100, 100), player.position, 6, 0.1f));
+            monsters.Add(new Monster(monsterTexture, monsterTexture, sprites, new Vector2(200, 500), player.position, 6, 0.1f));
 
-            player = new Player(playerTexture, Vector2.Zero);
-
+            foreach (var monster in monsters)
+            {
+                sprites.Add(monster);
+            }
             sprites.Add(player);
         }
 
@@ -52,24 +63,18 @@ namespace Knight_survival
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            if (Keyboard.GetState().IsKeyDown(Keys.Space))
-            {
-            }
-
-            if (Keyboard.GetState().IsKeyUp(Keys.Space))
-            {
-            }
-
-            if (Mouse.GetState().LeftButton == ButtonState.Pressed)
-            {
-            }
-
             foreach (var sprite in sprites)
             {
                 sprite.Update(gameTime);
             }
 
-            player.Update(gameTime, sprites);
+            foreach (var monster in monsters)
+            {
+                monster.UpdatePlayerPosition(new Vector2(player.position.X - 15, player.position.Y - 10));
+                monster.UpdateFrame(gameTime);
+            }
+
+            player.UpdateFrame(gameTime, 6);
 
             base.Update(gameTime);
         }
@@ -81,12 +86,12 @@ namespace Knight_survival
             // TODO: Add your drawing code here
             _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
 
+            _spriteBatch.Draw(backgroundTexture, Vector2.Zero, Color.White);
+
             foreach (var sprite in sprites)
             {
                 sprite.Draw(_spriteBatch);
             }
-
-            player.Draw(_spriteBatch);
 
             _spriteBatch.End();
 
