@@ -7,25 +7,27 @@ namespace Knight_survival
 {
     internal class Player : Sprite
     {
-        List<Sprite> collisionGroup;
-        private readonly int totalFrames;
-        private readonly int attackFrames;
-        private SpriteEffects spriteEffect = SpriteEffects.None;
-        private float frameTime;
-        private float timeSinceLastFrame;
-        private int currentFrame;
-        private Texture2D idleSpritesheet;
-        private Texture2D runSpritesheet;
-        private Texture2D attackSpritesheet;
-        private List<Rectangle> frameRectangles;
+        List<Sprite> collisionGroup { get; set; }
+        private int attackFrames { get; set; }
+        private SpriteEffects spriteEffect { get; set; } = SpriteEffects.None;
+        private float frameTime { get; set; }
+        private float timeSinceLastFrame { get; set; }
+        public int currentFrame { get; set; }
+        private Texture2D idleSpritesheet { get; set; }
+        private Texture2D runSpritesheet { get; set; }
+        private Texture2D attackSpritesheet { get; set; }
+        private List<Rectangle> frameRectangles { get; set; }
+        public int Health { get; set; } = 10;
+        public int Damage { get; set; } = 1;
+        public bool hasAttacked { get; set; } = false;
+        public bool isAttacking { get; set; }
 
-        public Player(Texture2D idleSpritesheet, Texture2D runSpritesheet, Texture2D attackSpritesheet, Vector2 position, List<Sprite> collisionGroup, int totalFrames, float frameTime, int attackFrames) : base(idleSpritesheet, position, 10)
+        public Player(Texture2D idleSpritesheet, Texture2D runSpritesheet, Texture2D attackSpritesheet, Vector2 position, List<Sprite> collisionGroup, float frameTime, int attackFrames) : base(idleSpritesheet, position, 10)
         {
             this.idleSpritesheet = idleSpritesheet;
             this.runSpritesheet = runSpritesheet;
             this.attackSpritesheet = attackSpritesheet;
             this.collisionGroup = collisionGroup;
-            this.totalFrames = totalFrames;
             this.frameTime = frameTime;
             this.attackFrames = attackFrames;
             frameRectangles = SliceSpriteSheet(idleSpritesheet, 120);
@@ -38,14 +40,12 @@ namespace Knight_survival
             List<Rectangle> frames = new List<Rectangle>();
             int columns = spritesheet.Width / frameWidth;
 
-
             for (int x = 0; x < columns; x++)
             {
                 int frameX = x * frameWidth;
                 Rectangle frame = new Rectangle(frameX, 0, frameWidth, spritesheet.Height);
                 frames.Add(frame);
             }
-
 
             return frames;
         }
@@ -57,12 +57,7 @@ namespace Knight_survival
             float changeX = 0;
             float changeY = 0;
             bool isMoving = false;
-            bool isAttacking = false;
-
-            if (Mouse.GetState().LeftButton == ButtonState.Pressed)
-            {
-                isAttacking = true;
-            }
+            isAttacking = false;
 
             if (Keyboard.GetState().IsKeyDown(Keys.LeftShift))
             {
@@ -87,17 +82,9 @@ namespace Knight_survival
             position.X += changeX;
 
             foreach (var sprite in collisionGroup)
-            {
                 if (sprite != this)
-                {
-                    //Rectangle partOfSprite = new Rectangle(sprite.Rect.X, sprite.Rect.Y, 10, 10);
-
                     if (sprite.Rect.Intersects(Rect))
-                    {
                         position.X -= changeX;
-                    }
-                }
-            }
 
             if (Keyboard.GetState().IsKeyDown(Keys.W))
             {
@@ -115,33 +102,29 @@ namespace Knight_survival
             position.Y += changeY;
 
             foreach (var sprite in collisionGroup)
-            {
                 if (sprite != this)
-                {
-                    //Rectangle partOfSprite = new Rectangle(sprite.Rect.X, sprite.Rect.Y, 10, 10);
-
                     if (sprite.Rect.Intersects(Rect))
-                    {
                         position.Y -= changeY;
-                    }
-                }
-            }
+
+            if (Mouse.GetState().LeftButton == ButtonState.Pressed && !isMoving)
+                isAttacking = true;
 
             if (isMoving)
-            {
                 texture = runSpritesheet;
-            }
             else if (isAttacking)
             {
                 UpdateFrame(gameTime, attackFrames);
                 texture = attackSpritesheet;
-
             }
             else { texture = idleSpritesheet; }
         }
 
         public void UpdateFrame(GameTime gameTime, int framesCount)
         {
+            if (currentFrame == 0) // Предполагается, что 0 - это начало цикла анимации
+            {
+                hasAttacked = false;
+            }
             timeSinceLastFrame += (float)gameTime.ElapsedGameTime.TotalSeconds;
             if (timeSinceLastFrame >= frameTime)
             {
@@ -149,13 +132,11 @@ namespace Knight_survival
                 timeSinceLastFrame = 0;
             }
         }
-        
 
         public override void Draw(SpriteBatch spriteBatch)
         {
             Rectangle sourceRectangle = frameRectangles[currentFrame];
             spriteBatch.Draw(texture, position, sourceRectangle, Color.White, 0f, Vector2.Zero, 1f, spriteEffect, 0f);
-
         }
     }
 }
