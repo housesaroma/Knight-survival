@@ -15,7 +15,14 @@ namespace Knight_survival
         Player player { get; set; }
         List<Monster> monsters { get; set; }
         Texture2D backgroundTexture { get; set; }
-        Texture2D monsterTexture { get; set; }
+        Texture2D skeletonTexture { get; set; }
+        Texture2D skeletonDeathTexture { get; set; }
+        Texture2D eyeTexture { get; set; }
+        Texture2D eyeDeathTexture { get; set; }
+        Texture2D goblinTexture { get; set; }
+        Texture2D goblinDeathTexture { get; set; }
+        Texture2D mushroomTexture { get; set; }
+        Texture2D mushroomDeathTexture { get; set; }
         Texture2D idleSpritesheet { get; set; }
         Texture2D runSpritesheet { get; set; }
         Texture2D attackSpritesheet { get; set; }
@@ -26,8 +33,10 @@ namespace Knight_survival
         private double totalTime { get; set; } = 0;
 
         bool isUpgradeMenuOpen = false;
-        List<string> upgradeOptions = new List<string>() { "Increase HP", "Increase Damage" };
+        List<string> upgradeOptions = new List<string>() { "Increase HP", "Increase Damage", "Increase Speed" };
         int selectedOption = 0;
+        private double lastInputTime = 0;
+        private double inputDelay = 0.2; // Задержка в секундах
 
         public Game1()
         {
@@ -55,7 +64,19 @@ namespace Knight_survival
             idleSpritesheet = Content.Load<Texture2D>("_Idle");
             runSpritesheet = Content.Load<Texture2D>("_Run");
             attackSpritesheet = Content.Load<Texture2D>("_Attack2");
-            monsterTexture = Content.Load<Texture2D>("skeleton");
+
+            skeletonTexture = Content.Load<Texture2D>("skeleton");
+            skeletonDeathTexture = Content.Load<Texture2D>("skeleton_death");
+
+            eyeTexture = Content.Load<Texture2D>("eye");
+            eyeDeathTexture = Content.Load<Texture2D>("eye_death");
+
+            goblinTexture = Content.Load<Texture2D>("goblin");
+            goblinDeathTexture = Content.Load<Texture2D>("goblin_death");
+
+            mushroomTexture = Content.Load<Texture2D>("mushroom");
+            mushroomDeathTexture = Content.Load<Texture2D>("mushroom_death");
+
             backgroundTexture = Content.Load<Texture2D>("background");
         }
 
@@ -73,8 +94,6 @@ namespace Knight_survival
 
         private void InitializeMonsters()
         {
-            monsters.Add(new Monster(monsterTexture, monsterTexture, sprites, new Vector2(100, 100), player.position, 6, 0.1f));
-            monsters.Add(new Monster(monsterTexture, monsterTexture, sprites, new Vector2(200, 500), player.position, 6, 0.1f));
             foreach (var monster in monsters)
                 sprites.Add(monster);
         }
@@ -96,11 +115,27 @@ namespace Knight_survival
 
         private void SpawnMonsters()
         {
-            if (spawnTimer >= 10)
+            if (spawnTimer >= 5)
             {
                 spawnTimer = 0;
+                int monsterType = random.Next(4); // Generates a random number between 0 and 3
                 Vector2 randomSpawnPoint = GetRandomSpawnPoint();
-                monsters.Add(new Monster(monsterTexture, monsterTexture, sprites, randomSpawnPoint, player.position, 6, 0.1f));
+
+                switch (monsterType)
+                {
+                    case 0:
+                        monsters.Add(new Skeleton(skeletonTexture, skeletonDeathTexture, sprites, randomSpawnPoint, player.position));
+                        break;
+                    case 1:
+                        monsters.Add(new Goblin(goblinTexture, goblinDeathTexture, sprites, randomSpawnPoint, player.position));
+                        break;
+                    case 2:
+                        monsters.Add(new Eye(eyeTexture, eyeDeathTexture, sprites, randomSpawnPoint, player.position));
+                        break;
+                    case 3:
+                        monsters.Add(new Mushroom(mushroomTexture, mushroomDeathTexture, sprites, randomSpawnPoint, player.position));
+                        break;
+                }
                 sprites.Add(monsters.Last());
             }
         }
@@ -124,8 +159,9 @@ namespace Knight_survival
                 {
                     Console.WriteLine(monster.Health);
                     if (!monster.IsAlive) continue;
+                    Rectangle playerHitbox = new Rectangle((int)player.position.X - 10, (int)player.position.Y - 10, player.Rect.Width + 20, player.Rect.Height + 15);
                     Rectangle monsterHitbox = new Rectangle((int)monster.position.X - 10, (int)monster.position.Y - 10, monster.Rect.Width + 20, monster.Rect.Height + 15);
-                    if (player.Rect.Intersects(monsterHitbox))
+                    if (playerHitbox.Intersects(monsterHitbox))
                     {
                         monster.Health -= player.Damage;
                         player.hasAttacked = true;
@@ -144,7 +180,7 @@ namespace Knight_survival
 
         private void UpdateSprites(GameTime gameTime)
         {
-            UpdateUpgradeMenu();
+            UpdateUpgradeMenu(gameTime);
 
             foreach (var sprite in sprites)
             {
@@ -187,22 +223,26 @@ namespace Knight_survival
             }
         }
 
-        private void UpdateUpgradeMenu()
+        private void UpdateUpgradeMenu(GameTime gameTime)
         {
             if (!isUpgradeMenuOpen) return;
 
-            if (Keyboard.GetState().IsKeyDown(Keys.Up))
+            double currentTime = gameTime.TotalGameTime.TotalSeconds;
+            if (Keyboard.GetState().IsKeyDown(Keys.Up) && currentTime - lastInputTime > inputDelay)
             {
                 selectedOption = Math.Max(0, selectedOption - 1);
+                lastInputTime = currentTime;
             }
-            if (Keyboard.GetState().IsKeyDown(Keys.Down))
+            if (Keyboard.GetState().IsKeyDown(Keys.Down) && currentTime - lastInputTime > inputDelay)
             {
                 selectedOption = Math.Min(upgradeOptions.Count - 1, selectedOption + 1);
+                lastInputTime = currentTime;
             }
-            if (Keyboard.GetState().IsKeyDown(Keys.Enter))
+            if (Keyboard.GetState().IsKeyDown(Keys.Enter) && currentTime - lastInputTime > inputDelay)
             {
                 ApplyUpgrade(selectedOption);
                 isUpgradeMenuOpen = false;
+                lastInputTime = currentTime;
             }
         }
 
@@ -215,6 +255,9 @@ namespace Knight_survival
                     break;
                 case 1: // Increase Damage
                     player.Damage += 1;
+                    break;
+                case 2: // Increase Speed
+                    player.Speed += 0.5f; // Adjust the value based on your game's balance
                     break;
             }
         }

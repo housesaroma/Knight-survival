@@ -19,6 +19,8 @@ namespace Knight_survival
         private List<Rectangle> frameRectangles { get; set; }
         public int Health { get; set; } = 10;
         public int Damage { get; set; } = 1;
+        public float Speed { get; set; } = 1f;
+        public bool IsShiftPressed { get; set; } = false; 
         public bool hasAttacked { get; set; } = false;
         public bool isAttacking { get; set; }
 
@@ -53,7 +55,6 @@ namespace Knight_survival
         public override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
-            float speed = 2;
             float changeX = 0;
             float changeY = 0;
             bool isMoving = false;
@@ -61,19 +62,24 @@ namespace Knight_survival
 
             if (Keyboard.GetState().IsKeyDown(Keys.LeftShift))
             {
-                speed = 3;
+                IsShiftPressed = true;
             }
+            else { IsShiftPressed = false; }
 
             if (Keyboard.GetState().IsKeyDown(Keys.D))
             {
-                changeX += speed;
+                if (IsShiftPressed)
+                    changeX += Speed * 1.2f;
+                changeX += Speed;
                 isMoving = true;
                 isAttacking = false;
                 spriteEffect = SpriteEffects.None;
             }
             if (Keyboard.GetState().IsKeyDown(Keys.A))
             {
-                changeX -= speed;
+                if (IsShiftPressed)
+                    changeX -= Speed * 1.2f;
+                changeX -= Speed;
                 isMoving = true;
                 isAttacking = false;
                 spriteEffect = SpriteEffects.FlipHorizontally;
@@ -88,13 +94,17 @@ namespace Knight_survival
 
             if (Keyboard.GetState().IsKeyDown(Keys.W))
             {
-                changeY -= speed;
+                if (IsShiftPressed)
+                    changeY -= Speed * 1.2f;
+                changeY -= Speed;
                 isMoving = true;
                 isAttacking = false;
             }
             if (Keyboard.GetState().IsKeyDown(Keys.S))
             {
-                changeY += speed;
+                if (IsShiftPressed)
+                    changeY += Speed * 1.2f;
+                changeY += Speed;
                 isMoving = true;
                 isAttacking = false;
             }

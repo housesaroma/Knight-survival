@@ -14,21 +14,22 @@ internal class Monster : Sprite
     private float timeSinceLastFrame { get; set; }
     private int currentFrame { get; set; }
     private Vector2 playerPosition { get; set; }
-    private Texture2D idleSpritesheet { get; set; }
     private Texture2D runSpritesheet { get; set; }
+    private Texture2D deathSpritesheet { get; set; }
     private List<Rectangle> frameRectangles { get; set; }
     public bool IsAlive { get; set; } = true;
     public int Health { get; set; } = 10;
 
-    public Monster(Texture2D idleSpritesheet, Texture2D runSpritesheet, List<Sprite> collisionGroup, Vector2 position, Vector2 playerPosition, int totalFrames, float frameTime) : base(idleSpritesheet, position, 6)
+    public Monster(Texture2D runSpritesheet, Texture2D deathSpritesheet, List<Sprite> collisionGroup, Vector2 position, Vector2 playerPosition, int totalFrames, float frameTime, int health) : base(runSpritesheet, position, 6)
     {
-        this.idleSpritesheet = idleSpritesheet;
         this.runSpritesheet = runSpritesheet;
+        this.deathSpritesheet = deathSpritesheet;
         this.playerPosition = playerPosition;
         this.totalFrames = totalFrames;
         this.frameTime = frameTime;
         this.collisionGroup = collisionGroup;
-        frameRectangles = SliceSpriteSheet(idleSpritesheet, 150, 150, 150, 150);
+        Health = health;
+        frameRectangles = SliceSpriteSheet(runSpritesheet, 150, 150, 150, 150);
         timeSinceLastFrame = 0;
         currentFrame = 0;
     }
@@ -81,10 +82,7 @@ internal class Monster : Sprite
         else if (direction.X < 0)
             spriteEffect = SpriteEffects.FlipHorizontally;
 
-        if (isMoving)
-            texture = runSpritesheet;
-        else
-            texture = idleSpritesheet;
+        texture = runSpritesheet;
     }
 
     public void UpdateFrame(GameTime gameTime)
