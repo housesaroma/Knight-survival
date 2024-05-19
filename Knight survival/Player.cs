@@ -20,7 +20,7 @@ namespace Knight_survival
         public int Health { get; set; } = 10;
         public int Damage { get; set; } = 1;
         public float Speed { get; set; } = 1f;
-        public bool IsShiftPressed { get; set; } = false; 
+        public bool IsShiftPressed { get; set; } = false;
         public bool hasAttacked { get; set; } = false;
         public bool isAttacking { get; set; }
 

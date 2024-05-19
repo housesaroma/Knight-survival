@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Knight_survival
 {
-    
+
     internal class Skeleton : Monster
     {
         public Skeleton(Texture2D idleSpritesheet, Texture2D runSpritesheet, List<Sprite> collisionGroup, Vector2 position, Vector2 playerPosition)

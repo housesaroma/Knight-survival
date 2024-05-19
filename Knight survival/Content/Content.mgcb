@@ -85,6 +85,18 @@
 /processorParam:TextureFormat=Color
 /build:Attack3.png;skeleton.png
 
+#begin Audio/mainMusic.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Audio/mainMusic.mp3
+
+#begin Audio/swordStrike.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Audio/swordStrike.mp3
+
 #begin background.jpg
 /importer:TextureImporter
 /processor:TextureProcessor

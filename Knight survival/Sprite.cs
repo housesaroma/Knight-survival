@@ -18,8 +18,8 @@ namespace Knight_survival
                 return new Rectangle(
                     (int)position.X,
                     (int)position.Y,
-                    texture.Width * (int)SCALE/frameRate-100,
-                    texture.Height * (int)SCALE-70
+                    texture.Width * (int)SCALE / frameRate - 100,
+                    texture.Height * (int)SCALE - 70
                     );
             }
         }
