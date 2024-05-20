@@ -15,20 +15,21 @@ internal class Monster : Sprite
     private int currentFrame { get; set; }
     private Vector2 playerPosition { get; set; }
     private Texture2D runSpritesheet { get; set; }
-    private Texture2D deathSpritesheet { get; set; }
     private List<Rectangle> frameRectangles { get; set; }
     public bool IsAlive { get; set; } = true;
-    public int Health { get; set; } = 10;
+    public int Health { get; set; }
+    public int Attack { get; set; } = 1;
+    private float fadeEffect = 1.0f;
 
-    public Monster(Texture2D runSpritesheet, Texture2D deathSpritesheet, List<Sprite> collisionGroup, Vector2 position, Vector2 playerPosition, int totalFrames, float frameTime, int health) : base(runSpritesheet, position, 6)
+    public Monster(Texture2D runSpritesheet, Texture2D deathSpritesheet, List<Sprite> collisionGroup, Vector2 position, Vector2 playerPosition, int totalFrames, float frameTime, int health, int attack) : base(runSpritesheet, position, 6)
     {
         this.runSpritesheet = runSpritesheet;
-        this.deathSpritesheet = deathSpritesheet;
         this.playerPosition = playerPosition;
         this.totalFrames = totalFrames;
         this.frameTime = frameTime;
         this.collisionGroup = collisionGroup;
         Health = health;
+        Attack = attack;
         frameRectangles = SliceSpriteSheet(runSpritesheet, 150, 150, 150, 150);
         timeSinceLastFrame = 0;
         currentFrame = 0;
@@ -54,11 +55,18 @@ internal class Monster : Sprite
 
     public override void Update(GameTime gameTime)
     {
+
+        if (!IsAlive)
+        {
+            fadeEffect -= (float)gameTime.ElapsedGameTime.TotalSeconds; // Decrease opacity over 1 second
+            if (fadeEffect < 0) fadeEffect = 0; // Ensure it does not go below 0
+            return;
+        }
+
         base.Update(gameTime);
         float speed = 1;
         Vector2 direction = playerPosition - position;
         direction.Normalize();
-        bool isMoving = true;
         float changeX = 0;
         float changeY = 0;
 
@@ -100,9 +108,12 @@ internal class Monster : Sprite
         playerPosition = newPosition;
     }
 
-    public override void Draw(SpriteBatch spriteBatch)
+public override void Draw(SpriteBatch spriteBatch)
     {
+        if (!IsAlive && fadeEffect <= 0) return; // Do not draw if fully faded
+
+        Color color = new Color(1f, 1f, 1f, fadeEffect); // Apply fading by adjusting alpha
         Rectangle sourceRectangle = frameRectangles[currentFrame];
-        spriteBatch.Draw(texture, position, sourceRectangle, Color.White, 0f, Vector2.Zero, 1f, spriteEffect, 0f);
+        spriteBatch.Draw(texture, position, sourceRectangle, color, 0f, Vector2.Zero, 1f, spriteEffect, 0f);
     }
 }

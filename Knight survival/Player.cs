@@ -69,7 +69,7 @@ namespace Knight_survival
             if (Keyboard.GetState().IsKeyDown(Keys.D))
             {
                 if (IsShiftPressed)
-                    changeX += Speed * 1.2f;
+                    changeX += Speed + 0.5f;
                 changeX += Speed;
                 isMoving = true;
                 isAttacking = false;
@@ -78,7 +78,7 @@ namespace Knight_survival
             if (Keyboard.GetState().IsKeyDown(Keys.A))
             {
                 if (IsShiftPressed)
-                    changeX -= Speed * 1.2f;
+                    changeX -= Speed + 0.5f;
                 changeX -= Speed;
                 isMoving = true;
                 isAttacking = false;
@@ -95,7 +95,7 @@ namespace Knight_survival
             if (Keyboard.GetState().IsKeyDown(Keys.W))
             {
                 if (IsShiftPressed)
-                    changeY -= Speed * 1.2f;
+                    changeY -= Speed + 0.5f;
                 changeY -= Speed;
                 isMoving = true;
                 isAttacking = false;
@@ -103,7 +103,7 @@ namespace Knight_survival
             if (Keyboard.GetState().IsKeyDown(Keys.S))
             {
                 if (IsShiftPressed)
-                    changeY += Speed * 1.2f;
+                    changeY += Speed + 0.5f;
                 changeY += Speed;
                 isMoving = true;
                 isAttacking = false;

@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Microsoft.VisualBasic;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -6,15 +7,18 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Knight_survival.GameScenes;
 
 public class GameScene : IScene
 {
     private ContentManager contentManager;
+    private SceneManager sceneManager;
     List<Sprite> sprites { get; set; } = new();
     Player player { get; set; }
     List<Monster> monsters { get; set; } = new();
+    Texture2D whitePixelTexture { get; set; }
     Texture2D backgroundTexture { get; set; }
     Texture2D skeletonTexture { get; set; }
     Texture2D skeletonDeathTexture { get; set; }
@@ -32,6 +36,7 @@ public class GameScene : IScene
     private SpriteFont font { get; set; }
     int killedEnemies { get; set; } = 0;
     private double totalTime { get; set; } = 0;
+    private double lastDamageTime { get; set; } = 0;
 
     bool isUpgradeMenuOpen = false;
     List<string> upgradeOptions = new List<string>() { "Increase HP", "Increase Damage", "Increase Speed" };
@@ -40,9 +45,10 @@ public class GameScene : IScene
     private double inputDelay = 0.2;
     SoundEffect swordStrike;
 
-    public GameScene(ContentManager contentManager)
+    public GameScene(ContentManager contentManager, SceneManager sceneManager)
     {
         this.contentManager = contentManager;
+        this.sceneManager = sceneManager;
     }
 
     private void LoadTextures()
@@ -64,6 +70,7 @@ public class GameScene : IScene
         mushroomDeathTexture = contentManager.Load<Texture2D>("mushroom_death");
 
         backgroundTexture = contentManager.Load<Texture2D>("background");
+        whitePixelTexture = contentManager.Load<Texture2D>("whitePixel");
     }
 
     private void LoadFonts()
@@ -148,7 +155,6 @@ public class GameScene : IScene
             swordStrike.Play();
             foreach (var monster in monsters.ToList())
             {
-                Console.WriteLine(monster.Health);
                 if (!monster.IsAlive) continue;
                 Rectangle playerHitbox = new Rectangle((int)player.position.X - 10, (int)player.position.Y - 10, player.Rect.Width + 20, player.Rect.Height + 15);
                 Rectangle monsterHitbox = new Rectangle((int)monster.position.X - 10, (int)monster.position.Y - 10, monster.Rect.Width + 20, monster.Rect.Height + 15);
@@ -159,8 +165,13 @@ public class GameScene : IScene
                     if (monster.Health <= 0)
                     {
                         monster.IsAlive = false;
-                        sprites.Remove(monster);
-                        monsters.Remove(monster);
+                        // Запуск анимации смерти
+                        // Отложенное удаление монстра из списка после завершения анимации
+                        Task.Delay(1000).ContinueWith(t =>
+                        {
+                            sprites.Remove(monster);
+                            monsters.Remove(monster);
+                        });
                         killedEnemies++;
                         isUpgradeMenuOpen = true;
                     }
@@ -181,6 +192,17 @@ public class GameScene : IScene
         {
             monster.UpdatePlayerPosition(new Vector2(player.position.X - 15, player.position.Y - 10));
             monster.UpdateFrame(gameTime);
+
+            // Check if monster can attack the player and if the monster is still alive
+            if (Vector2.Distance(monster.position, player.position) < 50 && monster.IsAlive) // Assuming 50 is the attack range
+            {
+                double currentTime = gameTime.TotalGameTime.TotalSeconds;
+                if (currentTime - lastDamageTime > 1) // Check if at least one second has passed
+                {
+                    player.Health -= monster.Attack; // Assuming each monster has an AttackDamage property
+                    lastDamageTime = currentTime; // Reset the damage timer
+                }
+            }
         }
         player.UpdateFrame(gameTime, 6);
     }
@@ -213,7 +235,7 @@ public class GameScene : IScene
         switch (option)
         {
             case 0: // Increase HP
-                player.Health += 10;
+                player.Health = Math.Min(player.Health + 3, 10);
                 break;
             case 1: // Increase Damage
                 player.Damage += 1;
@@ -233,6 +255,24 @@ public class GameScene : IScene
             TakeDamage();
 
         UpdateSprites(gameTime);
+    }
+
+    private void DrawHealthBar(SpriteBatch spriteBatch)
+    {
+        // Получаем позицию игрока и устанавливаем health bar немного выше его головы
+        Vector2 healthPosition = new Vector2(player.position.X+43, player.position.Y+30 );
+        int healthBarWidth = 30;
+        int healthBarHeight = 5;
+        int segmentWidth = healthBarWidth / 10;
+
+        // Рисуем фон health bar
+        spriteBatch.Draw(whitePixelTexture, new Rectangle((int)healthPosition.X, (int)healthPosition.Y, healthBarWidth, healthBarHeight), Color.Gray);
+
+        // Рисуем заполнение health bar в зависимости от текущего здоровья игрока
+        for (int i = 0; i < player.Health; i++)
+        {
+            spriteBatch.Draw(whitePixelTexture, new Rectangle((int)healthPosition.X + i * segmentWidth, (int)healthPosition.Y, segmentWidth, healthBarHeight), Color.Red);
+        }
     }
 
     private void DrawUpgradeMenu(SpriteBatch spriteBatch)
@@ -256,6 +296,9 @@ public class GameScene : IScene
     private void DrawUI(SpriteBatch spriteBatch)
     {
         spriteBatch.DrawString(font, "Killed Enemies: " + killedEnemies, Vector2.Zero, Color.White);
+
+        // Draw the health bar at the desired position
+        DrawHealthBar(spriteBatch);
 
         string timeText = $"Time: {totalTime:F2} sec";
         Vector2 timePosition = new Vector2(850 - 200, 0);

@@ -35,7 +35,7 @@ public class Game1 : Game
     protected override void LoadContent()
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
-        _sceneManager.AddScene(new GameScene(Content));
+        _sceneManager.AddScene(new GameScene(Content, _sceneManager));
         song = Content.Load<Song>("Audio/mainMusic");
         MediaPlayer.Play(song);
     }
