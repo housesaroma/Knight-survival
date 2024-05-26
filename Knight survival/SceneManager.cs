@@ -1,10 +1,9 @@
 using System.Collections.Generic;
 
-namespace Knight_survival.GameScenes;
+namespace Knight_survival.GameScene;
 
 public class SceneManager
 {
-
     private Stack<IScene> sceneStack;
 
     public SceneManager()

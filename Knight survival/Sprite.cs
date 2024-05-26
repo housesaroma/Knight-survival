@@ -6,7 +6,6 @@ namespace Knight_survival
     internal class Sprite
     {
         private static readonly float SCALE = 1f;
-
         public Texture2D texture;
         public Vector2 position;
         public int frameRate;

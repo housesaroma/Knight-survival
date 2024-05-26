@@ -1,4 +1,4 @@
-﻿using Knight_survival.GameScenes;
+﻿using Knight_survival.GameScene;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -35,7 +35,7 @@ public class Game1 : Game
     protected override void LoadContent()
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
-        _sceneManager.AddScene(new GameScene(Content, _sceneManager));
+        _sceneManager.AddScene(new GameScene.GameScene(Content, _sceneManager, _graphics));
         song = Content.Load<Song>("Audio/mainMusic");
         MediaPlayer.Play(song);
     }

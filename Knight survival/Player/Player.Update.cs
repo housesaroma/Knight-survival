@@ -1,57 +1,11 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System.Collections.Generic;
 
 namespace Knight_survival
 {
-    internal class Player : Sprite
+    internal partial class Player : Sprite
     {
-        List<Sprite> collisionGroup { get; set; }
-        private int attackFrames { get; set; }
-        private SpriteEffects spriteEffect { get; set; } = SpriteEffects.None;
-        private float frameTime { get; set; }
-        private float timeSinceLastFrame { get; set; }
-        public int currentFrame { get; set; }
-        private Texture2D idleSpritesheet { get; set; }
-        private Texture2D runSpritesheet { get; set; }
-        private Texture2D attackSpritesheet { get; set; }
-        private List<Rectangle> frameRectangles { get; set; }
-        public int Health { get; set; } = 10;
-        public int Damage { get; set; } = 1;
-        public float Speed { get; set; } = 1f;
-        public bool IsShiftPressed { get; set; } = false;
-        public bool hasAttacked { get; set; } = false;
-        public bool isAttacking { get; set; }
-
-        public Player(Texture2D idleSpritesheet, Texture2D runSpritesheet, Texture2D attackSpritesheet, Vector2 position, List<Sprite> collisionGroup, float frameTime, int attackFrames) : base(idleSpritesheet, position, 10)
-        {
-            this.idleSpritesheet = idleSpritesheet;
-            this.runSpritesheet = runSpritesheet;
-            this.attackSpritesheet = attackSpritesheet;
-            this.collisionGroup = collisionGroup;
-            this.frameTime = frameTime;
-            this.attackFrames = attackFrames;
-            frameRectangles = SliceSpriteSheet(idleSpritesheet, 120);
-            timeSinceLastFrame = 0;
-            currentFrame = 0;
-        }
-
-        private List<Rectangle> SliceSpriteSheet(Texture2D spritesheet, int frameWidth)
-        {
-            List<Rectangle> frames = new List<Rectangle>();
-            int columns = spritesheet.Width / frameWidth;
-
-            for (int x = 0; x < columns; x++)
-            {
-                int frameX = x * frameWidth;
-                Rectangle frame = new Rectangle(frameX, 0, frameWidth, spritesheet.Height);
-                frames.Add(frame);
-            }
-
-            return frames;
-        }
-
         public override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
@@ -141,12 +95,6 @@ namespace Knight_survival
                 currentFrame = (currentFrame + 1) % framesCount;
                 timeSinceLastFrame = 0;
             }
-        }
-
-        public override void Draw(SpriteBatch spriteBatch)
-        {
-            Rectangle sourceRectangle = frameRectangles[currentFrame];
-            spriteBatch.Draw(texture, position, sourceRectangle, Color.White, 0f, Vector2.Zero, 1f, spriteEffect, 0f);
         }
     }
 }
