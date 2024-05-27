@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -7,14 +8,14 @@ namespace Knight_survival.GameScene
 {
     internal partial class GameScene : IScene
     {
-        private void RageAttack()
+        private async void RageAttack()
         {
             var sortedMonsters = monsters.OrderBy(m => Vector2.Distance(player.position, m.position)).ToList();
             foreach (var monster in sortedMonsters)
             {
                 if (!monster.IsAlive) continue;
                 monster.IsAlive = false;
-                Task.Delay(200); // Задержка перед уничтожением следующего монстра
+                await Task.Delay(500); // Задержка перед уничтожением следующего монстра
                 sprites.Remove(monster);
                 monsters.Remove(monster);
                 killedEnemies++;
@@ -25,7 +26,7 @@ namespace Knight_survival.GameScene
                     upgradeMeter = 0;
                 }
             }
-            rageMeter =0;
+            rageMeter = 0;
         }
         private void TakeDamage()
         {
@@ -44,7 +45,7 @@ namespace Knight_survival.GameScene
                         if (monster.Health <= 0)
                         {
                             upgradeMeter++;
-                            rageMeter++;
+                            rageMeter = Math.Min(5, rageMeter+1);
                             monster.IsAlive = false;
                             Task.Delay(1000).ContinueWith(t =>
                             {
@@ -74,7 +75,8 @@ namespace Knight_survival.GameScene
             rageMeter = 0; // Сброс рейд шкалы
             isGameOver = false;
             gameOverFade = 0;
-            upgradeMeter = 0;
+            upgradeMeter = 0; 
+            upgradeThreshold = 1;
             monsters.Clear();
             sprites.Clear();
             sprites.Add(player);

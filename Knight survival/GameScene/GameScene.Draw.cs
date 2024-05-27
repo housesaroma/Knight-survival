@@ -64,7 +64,7 @@ namespace Knight_survival.GameScene
             Vector2 ragePosition = new Vector2(140, 80); // Position below the health bar
             int rageBarWidth = 150; // Total width of the rage bar
             int rageBarHeight = 30; // Height of the rage bar
-            int segmentWidth = rageBarWidth / 10; // Each segment represents 1 rage point
+            int segmentWidth = rageBarWidth / 5; // Each segment represents 1 rage point
 
             Vector2 labelPosition = new Vector2(0, ragePosition.Y - 10); // Adjust X position as needed
             spriteBatch.DrawString(font, "Rage:", labelPosition, Color.White);

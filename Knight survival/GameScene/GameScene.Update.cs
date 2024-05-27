@@ -124,7 +124,7 @@ namespace Knight_survival.GameScene
             if (isPaused)
                 return;
 
-            if (Keyboard.GetState().IsKeyDown(Keys.Space) && rageMeter >= 10)
+            if (Keyboard.GetState().IsKeyDown(Keys.Space) && rageMeter >= 5)
             {
                 RageAttack();
             }
