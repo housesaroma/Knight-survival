@@ -22,9 +22,10 @@ namespace Knight_survival.GameScene
                 if (upgradeMeter >= upgradeThreshold)
                 {
                     isUpgradeMenuOpen = true;
+                    upgradeMeter = 0;
                 }
             }
-            rageMeter = 0;
+            rageMeter =0;
         }
         private void TakeDamage()
         {
@@ -64,6 +65,8 @@ namespace Knight_survival.GameScene
         private void RestartGame()
         {
             player.Health = 10; // или другое начальное значение
+            player.Damage = 1;
+            player.Speed = 1f;
             killedEnemies = 0;
             totalTime = 0;
             spawnInterval = 5.0; // Сброс интервала спавна к начальному значению

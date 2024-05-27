@@ -6,44 +6,46 @@ namespace Knight_survival
     internal partial class Monster
     {
         public override void Update(GameTime gameTime)
-        {
+{
+    if (!IsAlive)
+    {
+        fadeEffect -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+        if (fadeEffect < 0) fadeEffect = 0;
+        return;
+    }
 
-            if (!IsAlive)
-            {
-                fadeEffect -= (float)gameTime.ElapsedGameTime.TotalSeconds; // Decrease opacity over 1 second
-                if (fadeEffect < 0) fadeEffect = 0; // Ensure it does not go below 0
-                return;
-            }
+    base.Update(gameTime);
+    Vector2 direction = playerPosition - position;
+    direction.Normalize();
+    float distance = Vector2.Distance(playerPosition, position);
+    float accelerationThreshold = 300; // Set this to whatever makes sense for your game
+    float speedMultiplier = 1.0f;
 
-            base.Update(gameTime);
-            float speed = 1;
-            Vector2 direction = playerPosition - position;
-            direction.Normalize();
-            float changeX = 0;
-            float changeY = 0;
+    if (distance > accelerationThreshold)
+    {
+        speedMultiplier = 1.0f + (distance - accelerationThreshold) / accelerationThreshold*0.3f; // Linear interpolation factor
+    }
 
-            changeX += direction.X * speed;
+    float changeX = direction.X * Speed * speedMultiplier;
+    float changeY = direction.Y * Speed * speedMultiplier;
 
-            position.X += changeX;
-            foreach (var sprite in collisionGroup)
-                if (sprite != this)
-                    if (sprite.Rect.Intersects(Rect))
-                        position.X -= changeX;
+    position.X += changeX;
+    foreach (var sprite in collisionGroup)
+        if (sprite != this && sprite.Rect.Intersects(Rect))
+            position.X -= changeX;
 
-            changeY += direction.Y * speed;
-            position.Y += changeY;
-            foreach (var sprite in collisionGroup)
-                if (sprite != this)
-                    if (sprite.Rect.Intersects(Rect))
-                        position.Y -= changeY;
+    position.Y += changeY;
+    foreach (var sprite in collisionGroup)
+        if (sprite != this && sprite.Rect.Intersects(Rect))
+            position.Y -= changeY;
 
-            if (direction.X > 0)
-                spriteEffect = SpriteEffects.None;
-            else if (direction.X < 0)
-                spriteEffect = SpriteEffects.FlipHorizontally;
+    if (direction.X > 0)
+        spriteEffect = SpriteEffects.None;
+    else if (direction.X < 0)
+        spriteEffect = SpriteEffects.FlipHorizontally;
 
-            texture = runSpritesheet;
-        }
+    texture = runSpritesheet;
+}
 
         public void UpdateFrame(GameTime gameTime)
         {

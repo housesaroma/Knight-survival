@@ -2,6 +2,7 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
 
 namespace Knight_survival.GameScene
 {
@@ -12,8 +13,8 @@ namespace Knight_survival.GameScene
             totalTime += gameTime.ElapsedGameTime.TotalSeconds;
             spawnTimer += gameTime.ElapsedGameTime.TotalSeconds;
 
-            // Уменьшаем spawnInterval каждые 30 секунд игрового времени, но не меньше minSpawnInterval
-            if (totalTime % 10 == 0) // каждые 30 секунд
+            // Уменьшаем spawnInterval каждые 10 секунд игрового времени, но не меньше minSpawnInterval
+            if (totalTime % 10 == 0) // каждые 10 секунд
             {
                 spawnInterval = Math.Max(minSpawnInterval, spawnInterval - 0.5); // уменьшаем на 0.5 секунды
             }
@@ -103,6 +104,16 @@ namespace Knight_survival.GameScene
                 {
                     isPaused = !isPaused;
                     lastPausePressed = true;
+                }
+                if (isPaused)
+                {
+                    if (MediaPlayer.State == MediaState.Playing)
+                        MediaPlayer.Pause();
+                }
+                else
+                {
+                    if (MediaPlayer.State == MediaState.Paused)
+                        MediaPlayer.Resume();
                 }
             }
             else

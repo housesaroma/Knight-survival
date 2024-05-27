@@ -19,6 +19,7 @@ internal partial class Monster : Sprite
     public bool IsAlive { get; set; } = true;
     public int Health { get; set; }
     public int MaxHealth { get; set; }
+    public float Speed { get; set; }
     public int Attack { get; set; } = 1;
     private float fadeEffect = 1.0f;
     private double lastAttackTime = 0;

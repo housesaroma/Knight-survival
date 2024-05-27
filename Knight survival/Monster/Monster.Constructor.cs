@@ -7,7 +7,7 @@ namespace Knight_survival
     internal partial class Monster : Sprite
     {
         public Monster(Texture2D runSpritesheet, List<Sprite> collisionGroup, Vector2 position, Vector2 playerPosition,
-                int totalFrames, float frameTime, int health, int maxHealth, int attack) : base(runSpritesheet, position, totalFrames)
+                int totalFrames, float frameTime, int health, int maxHealth, int attack, float speed) : base(runSpritesheet, position, totalFrames)
         {
             this.runSpritesheet = runSpritesheet;
             this.playerPosition = playerPosition;
@@ -17,6 +17,7 @@ namespace Knight_survival
             Health = health;
             MaxHealth = maxHealth;
             Attack = attack;
+            Speed = speed;
             frameRectangles = SliceSpriteSheet(runSpritesheet, 150, 150, 150, 150);
             timeSinceLastFrame = 0;
             currentFrame = 0;

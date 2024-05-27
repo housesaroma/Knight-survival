@@ -109,7 +109,7 @@ namespace Knight_survival.GameScene
 
             if (isPaused && !isUpgradeMenuOpen) // Проверка, что игра на паузе и окно прокачки не открыто
             {
-                Vector2 pausePosition = new Vector2(graphics.PreferredBackBufferWidth / 2, graphics.PreferredBackBufferHeight / 2);
+                Vector2 pausePosition = new Vector2(graphics.PreferredBackBufferWidth / 2-50, graphics.PreferredBackBufferHeight / 2-50);
                 spriteBatch.DrawString(font, "Paused", pausePosition, Color.Yellow);
             }
         }
